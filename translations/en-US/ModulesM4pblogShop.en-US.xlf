@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="module" source-language="en-US" target-language="en-US" datatype="plaintext">
+    <body>
+      <trans-unit id="24ad57b471529c66f83e0b8374703051">
+        <source>%count% min</source>
+        <target>%count% min</target>
+      </trans-unit>
+      <trans-unit id="be8df1f28c0abc85a0ed0c6860e5d832">
+        <source>Blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="3cfd94e5b1e020a2b88c15f49d57886e">
+        <source>Blog categories</source>
+        <target>Blog categories</target>
+      </trans-unit>
+      <trans-unit id="4a3e4a1f107f4ed3ed1e09f7eb5178ba">
+        <source>No posts by this author yet.</source>
+        <target>No posts by this author yet.</target>
+      </trans-unit>
+      <trans-unit id="d4669453e6590fc7abda9bc12c97f471">
+        <source>No posts in this category yet.</source>
+        <target>No posts in this category yet.</target>
+      </trans-unit>
+      <trans-unit id="67f0f3978dc0787f709f3a2589c38ff3">
+        <source>No posts yet.</source>
+        <target>No posts yet.</target>
+      </trans-unit>
+      <trans-unit id="6bdb710f60e7e59c221691eb269f00e5">
+        <source>Page %current% of %total%</source>
+        <target>Page %current% of %total%</target>
+      </trans-unit>
+      <trans-unit id="cbb81506a7fe3ef03f7a89c76c52131a">
+        <source>Pagination</source>
+        <target>Pagination</target>
+      </trans-unit>
+      <trans-unit id="72e1a287f5c1a92236faee600c112144">
+        <source>Posts, guides and news of the shop.</source>
+        <target>Posts, guides and news of the shop.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

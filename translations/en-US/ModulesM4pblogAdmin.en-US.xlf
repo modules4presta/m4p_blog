@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="module" source-language="en-US" target-language="en-US" datatype="plaintext">
+    <body>
+      <trans-unit id="2ff8071bcd15a31f9a743f1b06d0d00f">
+        <source>Add block</source>
+        <target>Add block</target>
+      </trans-unit>
+      <trans-unit id="42bf4f918da1d5a0d526ed9d36921073">
+        <source>Add new author</source>
+        <target>Add new author</target>
+      </trans-unit>
+      <trans-unit id="d0d4e3688fdaee5afa292083b855e143">
+        <source>Add new category</source>
+        <target>Add new category</target>
+      </trans-unit>
+      <trans-unit id="faf2a8061508110716e9c726151ec80b">
+        <source>Add new post</source>
+        <target>Add new post</target>
+      </trans-unit>
+      <trans-unit id="a517747c3d12f99244ae598910d979c5">
+        <source>Author</source>
+        <target>Author</target>
+      </trans-unit>
+      <trans-unit id="02684cc6b6ea1811a064f475a5fd1d18">
+        <source>Authors</source>
+        <target>Authors</target>
+      </trans-unit>
+      <trans-unit id="713a01ab419f96cb320352765e8791d4">
+        <source>Bio</source>
+        <target>Bio</target>
+      </trans-unit>
+      <trans-unit id="be8df1f28c0abc85a0ed0c6860e5d832">
+        <source>Blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="185be60ed238e8f168acfe1f129337ce">
+        <source>Blog visible</source>
+        <target>Blog visible</target>
+      </trans-unit>
+      <trans-unit id="3adbdb3ac060038aa0e6e6c138ef9873">
+        <source>Category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="f15c1cae7882448b3fb0404682e17e61">
+        <source>Content</source>
+        <target>Content</target>
+      </trans-unit>
+      <trans-unit id="84967207ddc311cfbe8ee66f677a1544">
+        <source>Cover image</source>
+        <target>Cover image</target>
+      </trans-unit>
+      <trans-unit id="bc9e270b7b1a09eeac794d32b3d9dc8f">
+        <source>Display name</source>
+        <target>Display name</target>
+      </trans-unit>
+      <trans-unit id="f03ab16cd58372c77ba45a3d9a5a1cb9">
+        <source>Draft</source>
+        <target>Draft</target>
+      </trans-unit>
+      <trans-unit id="6ca8bf4766b9dc7b1ea8b69562faac3f">
+        <source>Excerpt</source>
+        <target>Excerpt</target>
+      </trans-unit>
+      <trans-unit id="ff84b85ab3f21de6f7d8f98e82983273">
+        <source>For example: product specialist.</source>
+        <target>For example: product specialist.</target>
+      </trans-unit>
+      <trans-unit id="44de219c18cec46b054b43323a575488">
+        <source>Format YYYY-MM-DD HH:MM:SS.</source>
+        <target>Format YYYY-MM-DD HH:MM:SS.</target>
+      </trans-unit>
+      <trans-unit id="0cc48f21b025809aa7f342e23f9c1def">
+        <source>Headings in the content start at H2 – the post title is the H1 of the page.</source>
+        <target>Headings in the content start at H2 – the post title is the H1 of the page.</target>
+      </trans-unit>
+      <trans-unit id="7acdf85c69cc3c5305456a293524386e">
+        <source>Hidden</source>
+        <target>Hidden</target>
+      </trans-unit>
+      <trans-unit id="3341fe5742fb1bd9174aa3adbcef9d1f">
+        <source>Hide on the post page</source>
+        <target>Hide on the post page</target>
+      </trans-unit>
+      <trans-unit id="be37ee80abe0866f944e1ee7541e2ffb">
+        <source>Hide selected</source>
+        <target>Hide selected</target>
+      </trans-unit>
+      <trans-unit id="dd3ec12ea3d653a82c20efde35020c76">
+        <source>JPG, PNG or WebP, up to 10 MB. The module stores WebP copies in three widths.</source>
+        <target>JPG, PNG or WebP, up to 10 MB. The module stores WebP copies in three widths.</target>
+      </trans-unit>
+      <trans-unit id="da8c3fc54305be60c00998ce4c2746c6">
+        <source>Left at 0, it is counted from the content.</source>
+        <target>Left at 0, it is counted from the content.</target>
+      </trans-unit>
+      <trans-unit id="bd908db5ccb07777ced8023dffc802f4">
+        <source>Links</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="1a6570d1068d7dd6f811ff022da8f76d">
+        <source>Main category</source>
+        <target>Main category</target>
+      </trans-unit>
+      <trans-unit id="dd9f0c7e1bb3b749bd423e3544b4a8e3">
+        <source>Move down</source>
+        <target>Move down</target>
+      </trans-unit>
+      <trans-unit id="f77af7695f71323808f9b6e2795cde86">
+        <source>Move up</source>
+        <target>Move up</target>
+      </trans-unit>
+      <trans-unit id="f03ca4e495eb8750b5af1e6fea6b0320">
+        <source>No author</source>
+        <target>No author</target>
+      </trans-unit>
+      <trans-unit id="1c960b7c210d04439b311541170e5f62">
+        <source>No blocks yet. Add the first one.</source>
+        <target>No blocks yet. Add the first one.</target>
+      </trans-unit>
+      <trans-unit id="d79de24a931cdfd25615c068f1f2765a">
+        <source>No category</source>
+        <target>No category</target>
+      </trans-unit>
+      <trans-unit id="887992b5b243662c481c1c3b4970259a">
+        <source>Not linked</source>
+        <target>Not linked</target>
+      </trans-unit>
+      <trans-unit id="050593510246c5f8bea7f7ed60931ca4">
+        <source>Off: the blog pages answer 404 and the posts stay in the back office.</source>
+        <target>Off: the blog pages answer 404 and the posts stay in the back office.</target>
+      </trans-unit>
+      <trans-unit id="e3020bf428b87fa769b5bb2a6759ab25">
+        <source>One per line: label | address.</source>
+        <target>One per line: label | address.</target>
+      </trans-unit>
+      <trans-unit id="33a570ac7dc44e31ee17cbc1861762bf">
+        <source>Optional link to a back office account; it changes nothing on the front office.</source>
+        <target>Optional link to a back office account; it changes nothing on the front office.</target>
+      </trans-unit>
+      <trans-unit id="7e8a415ce9bdf8bf65e472f190be6293">
+        <source>Orders posts published at the same moment.</source>
+        <target>Orders posts published at the same moment.</target>
+      </trans-unit>
+      <trans-unit id="0c70b13506d16c2b353d42b13c72ffc1">
+        <source>Other categories</source>
+        <target>Other categories</target>
+      </trans-unit>
+      <trans-unit id="52b68aaa602d202c340d9e4e9157f276">
+        <source>Parent category</source>
+        <target>Parent category</target>
+      </trans-unit>
+      <trans-unit id="c03d53b70feba4ea842510abecd6c45e">
+        <source>Photo</source>
+        <target>Photo</target>
+      </trans-unit>
+      <trans-unit id="03d947a2158373c3b9d74325850cb8b9">
+        <source>Post</source>
+        <target>Post</target>
+      </trans-unit>
+      <trans-unit id="5dc52ca9ffdc26147075682c92a0a853">
+        <source>Posts</source>
+        <target>Posts</target>
+      </trans-unit>
+      <trans-unit id="197fe9d8089ebf25fa645c5f766853ad">
+        <source>Posts per page</source>
+        <target>Posts per page</target>
+      </trans-unit>
+      <trans-unit id="930445a87000a2ef4d511c216c0a268a">
+        <source>Posts per page: a number between 1 and 100.</source>
+        <target>Posts per page: a number between 1 and 100.</target>
+      </trans-unit>
+      <trans-unit id="735f7bed9808abe3b3c6bb67b9634a31">
+        <source>Publication date</source>
+        <target>Publication date</target>
+      </trans-unit>
+      <trans-unit id="df3c2172243a22237e12bec1ab36eada">
+        <source>Publish selected</source>
+        <target>Publish selected</target>
+      </trans-unit>
+      <trans-unit id="9b9d8a976b42e0bd66381797644943d5">
+        <source>Published</source>
+        <target>Published</target>
+      </trans-unit>
+      <trans-unit id="cda0f22cd7db4076fa86a8fcabf340c5">
+        <source>Reading time (minutes)</source>
+        <target>Reading time (minutes)</target>
+      </trans-unit>
+      <trans-unit id="ef4c1069e785b9bb39b258633ef7a037">
+        <source>Remove the image</source>
+        <target>Remove the image</target>
+      </trans-unit>
+      <trans-unit id="c69900f73099ff53b54d757f6eb47748">
+        <source>Remove the photo</source>
+        <target>Remove the photo</target>
+      </trans-unit>
+      <trans-unit id="9e0f79b390327474fbb3457a65b2317e">
+        <source>Remove this block?</source>
+        <target>Remove this block?</target>
+      </trans-unit>
+      <trans-unit id="bbbabdbe1b262f75d99d62880b953be1">
+        <source>Role</source>
+        <target>Role</target>
+      </trans-unit>
+      <trans-unit id="2b7dabba0077abe3732e0418b048a56b">
+        <source>Scheduled</source>
+        <target>Scheduled</target>
+      </trans-unit>
+      <trans-unit id="7b6f90cbe3eb3b36f18630532990da07">
+        <source>Scheduled: the post appears once the publication date has passed.</source>
+        <target>Scheduled: the post appears once the publication date has passed.</target>
+      </trans-unit>
+      <trans-unit id="910e0e506e674425577643193b3e1996">
+        <source>Select at least one post.</source>
+        <target>Select at least one post.</target>
+      </trans-unit>
+      <trans-unit id="f4f70727dc34561dfde1a3c529b6205c">
+        <source>Settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="c888438d14855d7d96a2724ee9c306bd">
+        <source>Settings updated</source>
+        <target>Settings updated</target>
+      </trans-unit>
+      <trans-unit id="2bda0a80a312ffffbceb9a6c23bc7e4f">
+        <source>Shop blog with posts built from content blocks, categories and authors.</source>
+        <target>Shop blog with posts built from content blocks, categories and authors.</target>
+      </trans-unit>
+      <trans-unit id="f2dadbaf057107851538430f854d2bd3">
+        <source>Shown in the breadcrumb and on the post card.</source>
+        <target>Shown in the breadcrumb and on the post card.</target>
+      </trans-unit>
+      <trans-unit id="3998ac2d5deb6f17ec404a3dcc9059be">
+        <source>Shown on the post card. Left empty, the beginning of the content is used.</source>
+        <target>Shown on the post card. Left empty, the beginning of the content is used.</target>
+      </trans-unit>
+      <trans-unit id="bf8ac02f50127654da0e8530863ad0f9">
+        <source>Space for the content</source>
+        <target>Space for the content</target>
+      </trans-unit>
+      <trans-unit id="3d10f474ca89e31e645ccc42387d272d">
+        <source>Status updated.</source>
+        <target>Status updated.</target>
+      </trans-unit>
+      <trans-unit id="9dffbf69ffba8bc38bc4e01abf4b1675">
+        <source>Text</source>
+        <target>Text</target>
+      </trans-unit>
+      <trans-unit id="816d1fe14afbdc1dd3c544f4146ded65">
+        <source>The last part of the address. Left empty, it is built from the display name.</source>
+        <target>The last part of the address. Left empty, it is built from the display name.</target>
+      </trans-unit>
+      <trans-unit id="e6b1151961982cb9040c0b01847d5a46">
+        <source>The last part of the address. Left empty, it is built from the name.</source>
+        <target>The last part of the address. Left empty, it is built from the name.</target>
+      </trans-unit>
+      <trans-unit id="3f7deb504af3bf337820cf35d72556e9">
+        <source>The last part of the address. Left empty, it is built from the title.</source>
+        <target>The last part of the address. Left empty, it is built from the title.</target>
+      </trans-unit>
+      <trans-unit id="5ca7d5dd908ec79c8a1a1ff012004a45">
+        <source>Top level</source>
+        <target>Top level</target>
+      </trans-unit>
+      <trans-unit id="2dbe1d3635286b5f1019da6f7cb6dc51">
+        <source>Upload a JPG, PNG or WebP image up to 10 MB.</source>
+        <target>Upload a JPG, PNG or WebP image up to 10 MB.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

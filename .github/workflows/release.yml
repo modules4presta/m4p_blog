@@ -1,0 +1,132 @@
+name: Release
+
+# Gated on the CI workflow finishing successfully.
+# Flow:
+#   1. push to main/master -> CI workflow runs all checks
+#   2. when CI completes with conclusion == success, this workflow fires
+#   3. it reads $this->version from the main module PHP file
+#   4. if tag vX.Y.Z does not yet exist -> tag, build ZIP, publish Release
+#
+# workflow_dispatch lets you re-run the release manually.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build ZIP and publish GitHub Release
+    runs-on: ubuntu-latest
+    # Only release if the upstream CI run succeeded. Manual dispatch always runs.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout the commit CI validated
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Resolve module name and version
+        id: meta
+        run: |
+          set -e
+          MODULE_FILE=$(ls *.php | grep -v '^index\.php$' | head -n 1)
+          if [ -z "$MODULE_FILE" ]; then
+            echo "No main module PHP file found in repo root." >&2
+            exit 1
+          fi
+          MODULE_NAME="${MODULE_FILE%.php}"
+
+          VERSION=$(grep -oE "\\\$this->version\s*=\s*'[^']+'" "$MODULE_FILE" | head -n 1 | sed -E "s/.*'([^']+)'.*/\1/")
+          if [ -z "$VERSION" ]; then
+            echo "Could not read \$this->version from $MODULE_FILE" >&2
+            exit 1
+          fi
+          TAG="v${VERSION}"
+
+          XML_VERSION=$(grep -oE '<version><!\[CDATA\[[^]]+\]\]></version>' config.xml | head -n 1 | sed -E 's/.*CDATA\[(.*)\]\].*/\1/')
+          if [ -n "$XML_VERSION" ] && [ "$XML_VERSION" != "$VERSION" ]; then
+            echo "Version mismatch: $MODULE_FILE=$VERSION  config.xml=$XML_VERSION" >&2
+            exit 1
+          fi
+
+          echo "module_name=$MODULE_NAME"               >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION"                       >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG"                               >> "$GITHUB_OUTPUT"
+          echo "zip_name=${MODULE_NAME}-${VERSION}.zip" >> "$GITHUB_OUTPUT"
+          echo "Module: $MODULE_NAME  Version: $VERSION  Tag: $TAG"
+
+      - name: Skip if tag already exists
+        id: gate
+        run: |
+          set -e
+          TAG="${{ steps.meta.outputs.tag }}"
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag ${TAG} already exists - nothing to release."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create and push tag
+        if: steps.gate.outputs.skip != 'true'
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      - name: Build module ZIP
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          set -e
+          MODULE_NAME="${{ steps.meta.outputs.module_name }}"
+          ZIP_NAME="${{ steps.meta.outputs.zip_name }}"
+
+          STAGE="/tmp/stage/${MODULE_NAME}"
+          mkdir -p "$STAGE"
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='.editorconfig' \
+            --exclude='node_modules' \
+            --exclude='vendor/bin' \
+            --exclude='tests' \
+            --exclude='*.zip' \
+            --exclude='dist' \
+            --exclude='build' \
+            --exclude='scripts' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='phpcs.xml.dist' \
+            --exclude='.php-cs-fixer.dist.php' \
+            --exclude='.php-cs-fixer.cache' \
+            --exclude='README.md' \
+            --exclude='.DS_Store' \
+            ./ "$STAGE/"
+
+          mkdir -p dist
+          (cd /tmp/stage && zip -r "$GITHUB_WORKSPACE/dist/${ZIP_NAME}" "${MODULE_NAME}")
+          ls -la dist
+
+      - name: Publish GitHub Release
+        if: steps.gate.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.meta.outputs.module_name }} ${{ steps.meta.outputs.version }}
+          tag_name: ${{ steps.meta.outputs.tag }}
+          target_commitish: ${{ github.event.workflow_run.head_sha || github.sha }}
+          generate_release_notes: true
+          files: dist/${{ steps.meta.outputs.zip_name }}
