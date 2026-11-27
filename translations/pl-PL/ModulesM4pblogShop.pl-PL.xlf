@@ -26,10 +26,6 @@
         <source>No posts yet.</source>
         <target>Brak wpisów.</target>
       </trans-unit>
-      <trans-unit id="6bdb710f60e7e59c221691eb269f00e5">
-        <source>Page %current% of %total%</source>
-        <target>Strona %current% z %total%</target>
-      </trans-unit>
       <trans-unit id="cbb81506a7fe3ef03f7a89c76c52131a">
         <source>Pagination</source>
         <target>Stronicowanie</target>
@@ -37,6 +33,30 @@
       <trans-unit id="72e1a287f5c1a92236faee600c112144">
         <source>Posts, guides and news of the shop.</source>
         <target>Wpisy, poradniki i aktualności sklepu.</target>
+      </trans-unit>
+      <trans-unit id="b9ee0997e2b855d3b3f4e41c68a83a04">
+        <source>All posts</source>
+        <target>Wszystkie wpisy</target>
+      </trans-unit>
+      <trans-unit id="1eef77a07b1d484f0335a6d743d34f86">
+        <source>%count% min read</source>
+        <target>%count% min czytania</target>
+      </trans-unit>
+      <trans-unit id="b1c94ca2fbc3e78fc30069c8d0f01680">
+        <source>All</source>
+        <target>Wszystkie</target>
+      </trans-unit>
+      <trans-unit id="e6e0b5e42952f40cfe3a5721a1240f48">
+        <source>Products from this post</source>
+        <target state="final">Produkty z wpisu</target>
+      </trans-unit>
+      <trans-unit id="c772300ff576b15a9cfb9aeefff97ead">
+        <source>Whole catalogue</source>
+        <target state="final">Cały katalog</target>
+      </trans-unit>
+      <trans-unit id="71c1f2e8d2fd7a88b47467f47195baa9">
+        <source>More from the blog</source>
+        <target state="final">Więcej z bloga</target>
       </trans-unit>
     </body>
   </file>

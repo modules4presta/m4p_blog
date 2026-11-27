@@ -61,6 +61,9 @@ class M4p_BlogListModuleFrontController extends ModuleFrontController
             'm4pBlogCategories' => $this->module->presentCategories($idLang),
             'm4pBlogPagination' => $this->module->pagination($total, $this->page, $this->module->blogLink()),
             'm4pBlogTitle' => $this->trans('Blog', [], 'Modules.M4pblog.Shop'),
+            'm4pBlogIntro' => (string) Configuration::get(M4p_Blog::CONFIG_INTRO, $idLang),
+            'm4pBlogTotal' => $total,
+            'm4pBlogCategoryId' => 0,
         ]);
 
         $this->setTemplate('module:m4p_blog/views/templates/front/list.tpl');

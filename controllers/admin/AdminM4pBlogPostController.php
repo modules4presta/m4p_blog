@@ -241,6 +241,21 @@ class AdminM4pBlogPostController extends ModuleAdminController
             'html_content' => $this->renderContentEditor($loaded ? $post : null),
         ];
 
+        $inputs[] = [
+            'type' => 'html',
+            'label' => $this->trans('Products', [], 'Modules.M4pblog.Admin'),
+            'name' => 'm4p_blog_products',
+            'html_content' => $this->renderProductPicker($loaded ? (string) $post->products : ''),
+        ];
+        $inputs[] = [
+            'type' => 'text',
+            'label' => $this->trans('Products section title', [], 'Modules.M4pblog.Admin'),
+            'name' => 'products_title',
+            'lang' => true,
+            'maxlength' => 255,
+            'hint' => $this->trans('Left empty: "Products from this post".', [], 'Modules.M4pblog.Admin'),
+        ];
+
         $inputs = array_merge($inputs, [
             [
                 'type' => 'textarea',
@@ -327,10 +342,20 @@ class AdminM4pBlogPostController extends ModuleAdminController
         // Without the list, ObjectModel::update() writes the language rows for every shop of the context.
         $object->id_shop_list = [$object->id_shop];
 
+        $object->products = implode(',', $this->existingProducts(M4pBlogPost::productIds((string) Tools::getValue('products'))));
+
+        $uploads = $this->storeBlockFiles();
         $content = [];
         foreach (Language::getIDs(false) as $idLang) {
             $idLang = (int) $idLang;
             $posted = json_decode((string) Tools::getValue('content_blocks_' . $idLang), true);
+            if (is_array($posted)) {
+                array_walk_recursive($posted, static function (&$value) use ($uploads): void {
+                    if (is_string($value) && strpos($value, 'upload:') === 0) {
+                        $value = $uploads[substr($value, 7)] ?? '';
+                    }
+                });
+            }
             $content[$idLang] = M4pBlogContent::encode(
                 M4pBlogContent::sanitize($this->module, is_array($posted) ? $posted : [])
             );
@@ -420,6 +445,118 @@ class AdminM4pBlogPostController extends ModuleAdminController
         $object->setCategories($selected);
     }
 
+    /**
+     * Products whose name or reference contains the query, for the product picker.
+     */
+    public function ajaxProcessSearchProducts(): void
+    {
+        $query = trim((string) Tools::getValue('q'));
+        $found = [];
+        if (Tools::strlen($query) >= 2) {
+            $like = pSQL(addcslashes($query, '%_\\'));
+            $where = 'pl.`name` LIKE "%' . $like . '%" OR p.`reference` LIKE "%' . $like . '%"';
+            if (ctype_digit($query)) {
+                $where .= ' OR p.`id_product` = ' . (int) $query;
+            }
+            $found = $this->productSummaries('(' . $where . ')', 20);
+        }
+        header('Content-Type: application/json; charset=utf-8');
+        exit(json_encode($found, JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * PDFs chosen in "File to download" blocks: the editor names each file input after a token and puts
+     * "upload:<token>" into the block; the token is swapped for the stored file name.
+     *
+     * @return array<string, string> token => stored file name
+     */
+    private function storeBlockFiles(): array
+    {
+        $files = $_FILES['m4p_blog_file'] ?? null;
+        if (!is_array($files) || !is_array($files['tmp_name'] ?? null)) {
+            return [];
+        }
+        $stored = [];
+        foreach ($files['tmp_name'] as $token => $tmpName) {
+            if ((int) $files['error'][$token] === UPLOAD_ERR_NO_FILE || !preg_match('/^[a-z0-9]{1,32}$/', (string) $token)) {
+                continue;
+            }
+            $name = M4pBlogFile::store([
+                'tmp_name' => (string) $tmpName,
+                'size' => (int) $files['size'][$token],
+                'error' => (int) $files['error'][$token],
+            ]);
+            if ($name === '') {
+                $this->errors[] = $this->trans('Upload a PDF file up to 20 MB.', [], 'Modules.M4pblog.Admin');
+                continue;
+            }
+            $stored[(string) $token] = $name;
+        }
+
+        return $stored;
+    }
+
+    /**
+     * @param int[] $ids
+     *
+     * @return int[]
+     */
+    private function existingProducts(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+        $existing = array_map('intval', array_column(Db::getInstance()->executeS(
+            'SELECT `id_product` FROM `' . _DB_PREFIX_ . 'product` WHERE `id_product` IN (' . implode(',', $ids) . ')'
+        ) ?: [], 'id_product'));
+
+        return array_values(array_intersect($ids, $existing));
+    }
+
+    /**
+     * @return list<array{id: int, name: string, reference: string}>
+     */
+    private function productSummaries(string $where, int $limit): array
+    {
+        $idShop = (int) $this->context->shop->id;
+        $query = new DbQuery();
+        $query->select('p.`id_product`, p.`reference`, pl.`name`')
+            ->from('product', 'p')
+            ->innerJoin('product_shop', 'ps', 'ps.`id_product` = p.`id_product` AND ps.`id_shop` = ' . $idShop)
+            ->innerJoin('product_lang', 'pl', 'pl.`id_product` = p.`id_product` AND pl.`id_shop` = ' . $idShop . ' AND pl.`id_lang` = ' . (int) $this->context->language->id)
+            ->where($where)
+            ->orderBy('pl.`name`');
+        if ($limit > 0) {
+            $query->limit($limit);
+        }
+
+        return array_map(static fn (array $row): array => [
+            'id' => (int) $row['id_product'],
+            'name' => (string) $row['name'],
+            'reference' => (string) $row['reference'],
+        ], Db::getInstance()->executeS($query) ?: []);
+    }
+
+    private function renderProductPicker(string $value): string
+    {
+        $ids = M4pBlogPost::productIds($value);
+        $found = [];
+        if ($ids !== []) {
+            foreach ($this->productSummaries('p.`id_product` IN (' . implode(',', $ids) . ')', 0) as $row) {
+                $found[$row['id']] = $row;
+            }
+        }
+        $chosen = array_values(array_filter(array_map(static fn (int $id): ?array => $found[$id] ?? null, $ids)));
+
+        $this->context->smarty->assign('m4pBlogPicker', [
+            'value' => implode(',', array_column($chosen, 'id')),
+            'products' => json_encode($chosen, JSON_UNESCAPED_UNICODE),
+            'search_url' => self::$currentIndex . '&token=' . $this->token . '&ajax=1&action=searchProducts',
+        ]);
+
+        return $this->createTemplate('product-picker.tpl')->fetch();
+    }
+
     private function imagePreview(string $name): string
     {
         $sources = M4pBlogImage::sources($name);
@@ -468,6 +605,7 @@ class AdminM4pBlogPostController extends ModuleAdminController
                 'hidden' => $this->trans('Hidden', [], 'Modules.M4pblog.Admin'),
                 'hide' => $this->trans('Hide on the post page', [], 'Modules.M4pblog.Admin'),
                 'empty' => $this->trans('No blocks yet. Add the first one.', [], 'Modules.M4pblog.Admin'),
+                'currentFile' => $this->trans('Current file (choose a new one to replace it):', [], 'Modules.M4pblog.Admin'),
                 'noH1' => $this->trans('Headings in the content start at H2 – the post title is the H1 of the page.', [], 'Modules.M4pblog.Admin'),
             ],
         ]);

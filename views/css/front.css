@@ -39,7 +39,7 @@
 }
 
 .m4p-blog-card__media img {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
 }
 
@@ -62,8 +62,31 @@
 }
 
 .m4p-blog-card__meta > * + *::before {
-  content: '·';
+  content: '|';
   margin: 0 0.5em;
+}
+
+/* Empty state: the theme's .m4p-empty when it has one, this layout otherwise. */
+:where(.m4p-blog-empty) {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-2, 0.5rem);
+  padding: var(--spacing-8, 2rem) 0;
+  text-align: center;
+}
+
+:where(.m4p-blog-empty) :where(.m4p-empty__title) {
+  margin: 0;
+  font-weight: 600;
+}
+
+:where(.m4p-blog-empty) :where(.m4p-empty__icon) {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm, 4px);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .m4p-blog-categories__list {
@@ -93,20 +116,61 @@
 }
 
 .m4p-blog-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-4, 1rem);
   margin-top: var(--m4p-blog-gap);
 }
 
-.m4p-blog-post {
-  max-width: 48rem;
-  margin-inline: auto;
+/* Fallback for themes without pagination styles; :where() keeps the theme's .page-link rules in front. */
+:where(.m4p-blog-pagination) .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2, 0.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
+:where(.m4p-blog-pagination .page-link) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--control-h-sm, 2.5rem);
+  height: var(--control-h-sm, 2.5rem);
+  padding: 0 0.5rem;
+  border: 1px solid var(--border, #d5d5cd);
+  border-radius: var(--r-sm, 4px);
+  text-decoration: none;
+}
+
+:where(.m4p-blog-pagination .page-item.disabled .page-link) {
+  border-color: transparent;
+  opacity: 0.5;
+}
+
+/* Post page: one reading column, the cover a bit wider, related sections wider still. */
+.m4p-blog-post {
+  --m4p-blog-measure: 47.5rem;
+  display: grid;
+  justify-items: center;
+  gap: var(--m4p-blog-gap);
+}
+
+.m4p-blog-post > * {
+  width: 100%;
+  max-width: var(--m4p-blog-measure);
+}
+
+.m4p-blog-post > .m4p-blog-post__cover { max-width: 62.5rem; margin: 0; }
+.m4p-blog-post > .m4p-blog-related { max-width: none; }
+
+.m4p-blog-post__head > * + * { margin-top: var(--spacing-3, 0.75rem); }
+.m4p-blog-post__category,
+.m4p-blog-post__back { justify-self: start; }
+.m4p-blog-post__title { margin-bottom: 0; }
+
 .m4p-blog-post__meta > * + *::before {
-  content: '·';
+  content: '|';
   margin: 0 0.5em;
 }
 
@@ -161,4 +225,155 @@
   .m4p-blog-author {
     flex-direction: column;
   }
+}
+
+/* Home page block: a base layout any theme can restyle. */
+.m4p-blog-home__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 1.5rem;
+}
+
+.m4p-blog-home__layout--posts { grid-template-columns: minmax(0, 1fr); }
+
+.m4p-blog-home__intro {
+  display: grid;
+  align-content: space-between;
+  gap: 1rem;
+}
+
+.m4p-blog-home__posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .m4p-blog-home__layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Content blocks */
+.m4p-blog-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  border-block: 1px solid currentColor;
+}
+
+.m4p-blog-facts__item { padding: 0.75rem 1rem 0.75rem 0; }
+.m4p-blog-facts dd { margin: 0; font-weight: 600; }
+
+.m4p-blog-box {
+  padding: 1.5rem;
+  border: 1px solid rgb(0 0 0 / 0.12);
+  border-radius: var(--r-sm, 4px);
+}
+
+.m4p-blog-box__list,
+.m4p-blog-steps__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.m4p-blog-box__list li {
+  position: relative;
+  padding: 0.625rem 0 0.625rem 1.5rem;
+  border-bottom: 1px solid rgb(0 0 0 / 0.08);
+}
+
+.m4p-blog-box__list li:last-child { border-bottom: 0; }
+
+.m4p-blog-box__list--bullet li::before {
+  content: '';
+  position: absolute;
+  top: 1.15em;
+  left: 0.125rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.m4p-blog-box__list--check li::before {
+  content: '';
+  position: absolute;
+  top: 0.95em;
+  left: 0.25rem;
+  width: 0.375rem;
+  height: 0.75rem;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.m4p-blog-steps__list { counter-reset: m4p-blog-step; }
+
+.m4p-blog-steps__list li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid rgb(0 0 0 / 0.08);
+  counter-increment: m4p-blog-step;
+}
+
+.m4p-blog-steps__list li:last-child { border-bottom: 0; }
+
+.m4p-blog-steps__list li::before {
+  content: counter(m4p-blog-step);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--r-sm, 4px);
+  background: rgb(0 0 0 / 0.06);
+  font-weight: 600;
+}
+
+.m4p-blog-steps__list p { margin: 0; padding-top: 0.375rem; }
+
+/* Zero specificity: a theme with the .m4p-msg component styles the note instead. */
+:where(.m4p-blog-note) {
+  padding: 1rem 1.25rem;
+  border-radius: var(--r-sm, 4px);
+  background: rgb(0 0 0 / 0.05);
+}
+
+:where(.m4p-blog-note .m4p-msg__text) { margin: 0; }
+
+.m4p-blog-faq__item { border-bottom: 1px solid rgb(0 0 0 / 0.12); }
+.m4p-blog-faq__question { padding: 0.875rem 0; font-weight: 600; cursor: pointer; }
+.m4p-blog-faq__answer { margin: 0 0 1rem; }
+
+.m4p-blog-file__link {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
+
+.m4p-blog-file__size { opacity: 0.75; font-size: 0.875em; }
+
+/* Products and more posts under a post */
+.m4p-blog-related__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.m4p-blog-related__title { margin: 0; }
+
+.m4p-blog-products__list,
+.m4p-blog-more__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 575px) {
+  .m4p-blog-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

@@ -2,7 +2,7 @@
 <module>
 	<name>m4p_blog</name>
 	<displayName><![CDATA[Blog]]></displayName>
-	<version><![CDATA[1.0.1]]></version>
+	<version><![CDATA[1.3.0]]></version>
 	<description><![CDATA[Shop blog with posts built from content blocks, categories and authors.]]></description>
 	<author><![CDATA[Modules4Presta]]></author>
 	<tab><![CDATA[content_management]]></tab>

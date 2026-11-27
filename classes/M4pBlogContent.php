@@ -118,9 +118,9 @@ class M4pBlogContent
     {
         $parts = [];
         foreach (self::decode($json) as $block) {
-            foreach ($block['data'] as $value) {
-                $parts[] = M4pBlogHtml::toText(is_array($value) ? implode(' ', $value) : (string) $value);
-            }
+            array_walk_recursive($block['data'], static function ($value) use (&$parts): void {
+                $parts[] = M4pBlogHtml::toText((string) $value);
+            });
         }
 
         return trim(implode(' ', array_filter($parts)));

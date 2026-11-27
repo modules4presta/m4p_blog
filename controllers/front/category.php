@@ -39,12 +39,43 @@ class M4p_BlogCategoryModuleFrontController extends ModuleFrontController
             ? M4pBlogCategory::getByRewrite($rewrite, (int) $this->context->shop->id, (int) $this->context->language->id)
             : null;
         if ($category === null) {
+            $this->redirectFormerUrl($rewrite);
             Tools::redirect('index.php?controller=404');
         }
         $this->category = $category;
         $this->page = max(1, (int) Tools::getValue('page', 1));
 
         parent::init();
+    }
+
+    private function redirectFormerUrl(string $rewrite): void
+    {
+        if (!$this->module->isBlogActive()) {
+            return;
+        }
+        $idShop = (int) $this->context->shop->id;
+        $idLang = (int) $this->context->language->id;
+        $idCategory = M4pBlogRedirect::find(M4pBlogRedirect::CATEGORY, $idShop, $idLang, $rewrite);
+        $category = $idCategory ? M4pBlogCategory::getById($idCategory, $idShop, $idLang) : null;
+        if ($category !== null && (string) $category['link_rewrite'] !== '') {
+            M4pBlogRedirect::moved($this->module->categoryLink((string) $category['link_rewrite']));
+        }
+    }
+
+    /**
+     * The layout is looked up by page name, not by `php_self`: `category` is the shop's product category
+     * page, which themes usually give a side column.
+     *
+     * @return string
+     */
+    public function getLayout()
+    {
+        $phpSelf = $this->php_self;
+        $this->php_self = '';
+        $layout = parent::getLayout();
+        $this->php_self = $phpSelf;
+
+        return $layout;
     }
 
     public function initContent(): void
@@ -72,6 +103,8 @@ class M4p_BlogCategoryModuleFrontController extends ModuleFrontController
             'm4pBlogPagination' => $this->module->pagination($total, $this->page, $this->categoryUrl()),
             'm4pBlogTitle' => (string) $this->category['name'],
             'm4pBlogDescription' => (string) $this->category['description'],
+            'm4pBlogTotal' => M4pBlogPost::countPosts($idShop, $idLang),
+            'm4pBlogCategoryId' => $idCategory,
             'm4pBlogImage' => $this->category['image']
                 ? M4pBlogImage::sources((string) $this->category['image'])
                 : null,

@@ -21,6 +21,12 @@ class M4pBlogBlocks
 {
     private const TYPES = [
         M4pBlogHtmlBlock::class,
+        M4pBlogFactsBlock::class,
+        M4pBlogListBlock::class,
+        M4pBlogStepsBlock::class,
+        M4pBlogNoteBlock::class,
+        M4pBlogFaqBlock::class,
+        M4pBlogFileBlock::class,
     ];
 
     /** @var array<string, M4pBlogBlock>|null */
