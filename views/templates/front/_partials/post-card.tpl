@@ -5,33 +5,31 @@
  * @copyright 2026 Nice Code sp. z o.o. (Modules4Presta)
  * @license   https://opensource.org/licenses/MIT MIT License
  *}
+{$m4pCardHeading = $headingTag|default:'h2'}
 <article class="m4p-blog-card">
   {if $post.image}
-    <a class="m4p-blog-card__media" href="{$post.url}">
-      <img src="{$post.image.src}" srcset="{$post.image.srcset}"
-           sizes="(min-width: 1200px) 380px, (min-width: 768px) 50vw, 100vw"
-           width="{$post.image.width}" height="{$post.image.height}"
-           alt="{$post.title}" loading="lazy" decoding="async">
+    <a class="m4p-blog-card__media" href="{$post.url|escape:'html':'UTF-8'}" tabindex="-1" aria-hidden="true">
+      <img src="{$post.image.src|escape:'html':'UTF-8'}" srcset="{$post.image.srcset|escape:'html':'UTF-8'}"
+           sizes="{$imageSizes|default:'(min-width: 1200px) 380px, (min-width: 768px) 50vw, 100vw'|escape:'html':'UTF-8'}"
+           width="{$post.image.width|intval}" height="{$post.image.height|intval}"
+           alt="" loading="lazy" decoding="async">
     </a>
   {/if}
   <div class="m4p-blog-card__body">
     {if $post.category}
-      <a class="m4p-blog-card__category" href="{$post.category.url}">{$post.category.name}</a>
+      <a class="m4p-blog-card__category" href="{$post.category.url|escape:'html':'UTF-8'}">{$post.category.name|escape:'html':'UTF-8'}</a>
     {/if}
-    <h2 class="m4p-blog-card__title"><a href="{$post.url}">{$post.title}</a></h2>
-    {if $post.excerpt}<p class="m4p-blog-card__excerpt">{$post.excerpt}</p>{/if}
-    <p class="m4p-blog-card__meta">
-      <time datetime="{$post.date_published|date_format:'%Y-%m-%d'}">
-        {$post.date_published|date_format:'%d.%m.%Y'}
-      </time>
-      {if $post.author}
-        <span class="m4p-blog-card__author">{$post.author.display_name}</span>
-      {/if}
-      {if $post.reading_time}
-        <span class="m4p-blog-card__reading">
-          {l s='%count% min' sprintf=['%count%' => $post.reading_time] d='Modules.M4pblog.Shop'}
-        </span>
-      {/if}
-    </p>
+    <{$m4pCardHeading} class="m4p-blog-card__title"><a href="{$post.url|escape:'html':'UTF-8'}">{$post.title|escape:'html':'UTF-8'}</a></{$m4pCardHeading}>
+    {if $post.excerpt}<p class="m4p-blog-card__excerpt">{$post.excerpt|escape:'html':'UTF-8'}</p>{/if}
+    {if $post.author || $post.reading_time}
+      <p class="m4p-blog-card__meta">
+        {if $post.author}
+          <span class="m4p-blog-card__author">{$post.author.display_name|escape:'html':'UTF-8'}</span>
+        {/if}
+        {if $post.reading_time}
+          <span class="m4p-blog-card__reading">{l s='%count% min read' sprintf=['%count%' => $post.reading_time|intval] d='Modules.M4pblog.Shop'}</span>
+        {/if}
+      </p>
+    {/if}
   </div>
 </article>

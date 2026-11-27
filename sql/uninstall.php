@@ -26,4 +26,5 @@ return [
     "DROP TABLE IF EXISTS `{$prefix}m4p_blog_category_lang`;",
     "DROP TABLE IF EXISTS `{$prefix}m4p_blog_category`;",
     "DROP TABLE IF EXISTS `{$prefix}m4p_blog_author`;",
+    "DROP TABLE IF EXISTS `{$prefix}m4p_blog_redirect`;",
 ];

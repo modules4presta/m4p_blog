@@ -53,7 +53,7 @@
           {foreach from=$type.fields item=field}
             <div class="m4p-blog-block__field">
               <label>{$field.label|escape:'html':'UTF-8'}</label>
-              {assign var=scope value=$field.translatable|default:false ? 'data' : 'settings'}
+              {if $field.translatable|default:false}{assign var=scope value='data'}{else}{assign var=scope value='settings'}{/if}
               {if $field.type == 'richtext'}
                 <textarea class="m4p-blog-rte" rows="10"
                           data-field="{$field.name|escape:'html':'UTF-8'}"
@@ -66,6 +66,16 @@
                           data-field-type="lines"
                           data-field-scope="{$scope}"
                           placeholder="{$field.placeholder|default:''|escape:'html':'UTF-8'}"></textarea>
+              {elseif $field.type == 'textarea' || $field.type == 'pairs'}
+                <textarea class="form-control" rows="{if $field.type == 'pairs'}8{else}4{/if}"
+                          data-field="{$field.name|escape:'html':'UTF-8'}"
+                          data-field-type="{$field.type|escape:'html':'UTF-8'}"
+                          data-field-scope="{$scope}"
+                          placeholder="{$field.placeholder|default:''|escape:'html':'UTF-8'}"></textarea>
+              {elseif $field.type == 'file'}
+                <input type="hidden" data-field="{$field.name|escape:'html':'UTF-8'}" data-field-type="file" data-field-scope="{$scope}">
+                <p class="m4p-blog-block__file" data-file-current></p>
+                <input type="file" accept="application/pdf" data-file-input>
               {elseif $field.type == 'choice'}
                 <select class="form-control"
                         data-field="{$field.name|escape:'html':'UTF-8'}"

@@ -31,6 +31,11 @@
     if (node.dataset.fieldType === 'lines') {
       return Array.isArray(value) ? value.join('\n') : value || '';
     }
+    if (node.dataset.fieldType === 'pairs') {
+      return Array.isArray(value)
+        ? value.map(function (pair) { return (pair.q || '') + '\n' + (pair.a || ''); }).join('\n\n')
+        : value || '';
+    }
 
     return value === undefined || value === null ? '' : String(value);
   }
@@ -56,6 +61,12 @@
       if (field.dataset.fieldType === 'richtext') {
         initRichText(field);
       }
+      if (field.dataset.fieldType === 'file' && field.value) {
+        var current = field.parentElement.querySelector('[data-file-current]');
+        if (current) {
+          current.textContent = (editor.dataset.currentFile || '') + ' ' + field.value;
+        }
+      }
     });
 
     return node;
@@ -68,6 +79,14 @@
       var scope = field.dataset.fieldScope === 'settings' ? 'settings' : 'data';
       var value = field.value;
 
+      if (field.dataset.fieldType === 'file') {
+        var input = field.parentElement.querySelector('[data-file-input]');
+        if (input && input.files && input.files.length) {
+          var token = 'f' + Date.now().toString(36) + (++uid);
+          input.name = 'm4p_blog_file[' + token + ']';
+          value = 'upload:' + token;
+        }
+      }
       if (field.dataset.fieldType === 'richtext' && window.tinyMCE) {
         var instance = window.tinyMCE.get(field.id);
         if (instance) {
@@ -162,6 +181,7 @@
       labels = {};
     }
     editor.dataset.removeConfirm = labels.removeConfirm || '';
+    editor.dataset.currentFile = labels.currentFile || '';
 
     editor.querySelectorAll('.m4p-blog-editor__lang').forEach(function (pane) {
       setUpPane(editor, pane);
@@ -178,8 +198,114 @@
     }
   }
 
+  function setUpPicker(root) {
+    var data = root.dataset;
+    var value = root.querySelector('[data-m4p-blog-picker-value]');
+    var list = root.querySelector('[data-m4p-blog-picker-list]');
+    var search = root.querySelector('[data-m4p-blog-picker-search]');
+    var results = root.querySelector('[data-m4p-blog-picker-results]');
+    var products = parse(data.products || '[]');
+    var timer = null;
+    var request = 0;
+
+    function button(text, action, index) {
+      var el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'btn btn-default btn-xs';
+      el.textContent = text;
+      el.dataset.action = action;
+      el.dataset.index = String(index);
+      return el;
+    }
+
+    function render() {
+      value.value = products.map(function (product) { return product.id; }).join(',');
+      list.textContent = '';
+      products.forEach(function (product, index) {
+        var item = document.createElement('li');
+        var name = document.createElement('span');
+        name.className = 'm4p-blog-picker__name';
+        name.textContent = product.name + (product.reference ? ' – ' + product.reference : '');
+        item.appendChild(name);
+        if (index > 0) { item.appendChild(button(data.labelUp, 'up', index)); }
+        if (index < products.length - 1) { item.appendChild(button(data.labelDown, 'down', index)); }
+        item.appendChild(button(data.labelRemove, 'remove', index));
+        list.appendChild(item);
+      });
+    }
+
+    function closeResults() {
+      results.hidden = true;
+      results.textContent = '';
+    }
+
+    function showResults(found) {
+      var chosen = products.map(function (product) { return product.id; });
+      results.textContent = '';
+      found = found.filter(function (product) { return chosen.indexOf(product.id) === -1; });
+      if (!found.length) {
+        var none = document.createElement('li');
+        none.className = 'm4p-blog-picker__none';
+        none.textContent = data.labelNone;
+        results.appendChild(none);
+      }
+      found.forEach(function (product) {
+        var item = document.createElement('li');
+        var choose = document.createElement('button');
+        choose.type = 'button';
+        choose.textContent = product.name + (product.reference ? ' – ' + product.reference : '');
+        choose.addEventListener('click', function () {
+          products.push(product);
+          render();
+          closeResults();
+          search.value = '';
+          search.focus();
+        });
+        item.appendChild(choose);
+        results.appendChild(item);
+      });
+      results.hidden = false;
+    }
+
+    function find() {
+      var query = search.value.trim();
+      if (query.length < 2) { closeResults(); return; }
+      var current = ++request;
+      fetch(data.searchUrl + '&q=' + encodeURIComponent(query), { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+        .then(function (response) { return response.ok ? response.json() : []; })
+        .then(function (found) { if (current === request) { showResults(Array.isArray(found) ? found : []); } })
+        .catch(function () { if (current === request) { showResults([]); } });
+    }
+
+    list.addEventListener('click', function (event) {
+      var target = event.target.closest('[data-action]');
+      if (!target) { return; }
+      var index = parseInt(target.dataset.index, 10);
+      if (target.dataset.action === 'remove') {
+        products.splice(index, 1);
+      } else {
+        var to = target.dataset.action === 'up' ? index - 1 : index + 1;
+        products.splice(to, 0, products.splice(index, 1)[0]);
+      }
+      render();
+    });
+    search.addEventListener('input', function () {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(find, 250);
+    });
+    search.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') { event.preventDefault(); }
+      if (event.key === 'Escape') { closeResults(); }
+    });
+    document.addEventListener('click', function (event) {
+      if (!root.contains(event.target)) { closeResults(); }
+    });
+    render();
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.m4p-blog-editor').forEach(setUp);
+    document.querySelectorAll('[data-m4p-blog-picker]').forEach(setUpPicker);
 
     if (window.jQuery && window.jQuery.fn.datetimepicker) {
       window.jQuery('.m4p-blog-datetime').datetimepicker({ dateFormat: 'yy-mm-dd', timeFormat: 'HH:mm:ss' });

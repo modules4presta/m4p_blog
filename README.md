@@ -23,17 +23,20 @@ are about, in the same templates and languages.
 ## What the module does
 
 The module adds a blog to the front office (a list of posts, category pages, author pages and post
-pages) and three back office screens to manage it. The content of a post is an ordered list of
+pages), a block of the latest posts on the home page and three back office screens to manage it. The content of a post is an ordered list of
 typed blocks stored as JSON, not one HTML field. The front office ships its own templates and takes
 colours and fonts from the theme.
 
 ### Key features
 
 - **Posts** – status (draft, scheduled, published), publication date, author, main category, reading time, cover image, per-language meta fields and friendly URL
-- **Content as blocks** – this release ships one type, `html`, edited with the standard PrestaShop editor; further types are added as block classes and need no change to stored content
+- **Content as blocks** – text (the standard PrestaShop editor), parameters, a boxed list, steps, a highlight (information, tip, warning), questions and answers and a PDF to download; titles are written by the editor, so the blocks fit any trade, not only recipes. Further types are added as block classes and need no change to stored content
+- **Products under a post** – chosen by name or reference, in their order, shown as the theme's product card, with a section title per language
+- **More from the blog** – up to three latest posts of the same main category under a post
 - **Categories** – a tree up to three levels, each with an image, a description and meta fields
 - **Authors** – display name, photo, role, bio and links, optionally tied to a back office account
 - **Four front office pages** with friendly URLs: the blog, a category, an author and a post
+- **Home page block** – the latest posts on `displayHome`, from the whole blog or one category, with an optional introduction panel and a link to all posts
 - **WebP images** – three widths (480, 960 and 1600 px) with their dimensions, so every `<img>` carries `srcset`, `width` and `height`
 - **Clean markup** – the rich text of a block is cleaned against an allow-list on save, and `h1` becomes `h2`, because the post title is the only `h1` of the page
 - **Multistore** – every table carries `id_shop` in its primary key, so a post, a category and an author belong to one shop
@@ -55,7 +58,7 @@ colours and fonts from the theme.
 | Multistore | Compatible – posts, categories and authors per shop |
 | Themes | Works with any theme – templates ship in the module and a theme can override them |
 
-The module performs no core overrides. It adds nine database tables, two settings and a **Blog**
+The module performs no core overrides. It adds nine database tables, seven settings and a **Blog**
 menu with three tabs in the back office.
 
 ## Installation
@@ -74,6 +77,10 @@ and that **Blog visible** is on in the module configuration.
 |---|---|
 | **Blog visible** | On by default. Off: the blog pages answer 404 and the posts stay in the back office. |
 | **Posts per page** | 9 by default. Posts on the blog page and on a category or author page. |
+| **Blog page introduction** | Per language. A text under the title of the blog page; empty hides it. |
+| **Posts on the home page** | 2 by default. How many of the latest posts the home page block shows; 0 hides it. |
+| **Home page posts from** | The whole blog or one category. |
+| **Home page block title, introduction title and text** | Per language. Without an introduction title the block shows the posts only. |
 
 ## Addresses
 
@@ -87,6 +94,9 @@ and that **Blog visible** is on in the module configuration.
 Module routes are the same in every language of a shop, so the segments are the constants
 `ROUTE_BASE`, `ROUTE_CATEGORY` and `ROUTE_AUTHOR` in `m4p_blog.php`. Changing them changes every
 address the module builds; existing addresses then need a 301 in the server configuration.
+
+A friendly URL changed in the back office (post, category or author) is kept in `m4p_blog_redirect`;
+the former address answers with a 301 to the current one.
 
 ## Content blocks
 
@@ -104,6 +114,19 @@ address the module builds; existing addresses then need a 301 in the server conf
 `data` holds the fields a block type marks translatable, `settings` the rest; both sit inside the
 language row, because the content itself is per language. The shape is the one `m4p_productcontent`
 uses, so block types and their templates carry over between the two modules.
+
+| Block | Fields |
+| --- | --- |
+| Text (`html`) | Rich text |
+| Parameters (`facts`) | Rows `Label: value`, shown as a bar of up to four columns |
+| Boxed list (`list`) | Title, items one per line, bullets or check marks |
+| Steps (`steps`) | Title, steps one per line, numbered |
+| Highlight (`note`) | Information, tip or warning, and the text; rendered in the `.m4p-msg` component |
+| Questions and answers (`faq`) | Title, pairs: the question in the first line, the answer below, an empty line between pairs |
+| File to download (`file`) | A PDF up to 20 MB (stored in `img/m4p_blog/files/`) and its name |
+
+The module renders no structured data for questions and answers; a module on `displayM4pBlogJsonLd`
+can add it.
 
 A new block type is a class in `classes/Block/` extending `M4pBlogBlock`: it names its type, its
 label and icon, declares its fields, and ships a template in

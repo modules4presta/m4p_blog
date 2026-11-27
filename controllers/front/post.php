@@ -36,11 +36,26 @@ class M4p_BlogPostModuleFrontController extends ModuleFrontController
             ? M4pBlogPost::getByRewrite($rewrite, (int) $this->context->shop->id, (int) $this->context->language->id)
             : null;
         if ($post === null || (string) $post['title'] === '') {
+            $this->redirectFormerUrl($rewrite);
             Tools::redirect('index.php?controller=404');
         }
         $this->post = $post;
 
         parent::init();
+    }
+
+    private function redirectFormerUrl(string $rewrite): void
+    {
+        if (!$this->module->isBlogActive()) {
+            return;
+        }
+        $idShop = (int) $this->context->shop->id;
+        $idLang = (int) $this->context->language->id;
+        $idPost = M4pBlogRedirect::find(M4pBlogRedirect::POST, $idShop, $idLang, $rewrite);
+        $current = $idPost ? M4pBlogPost::getRewrite($idPost, $idShop, $idLang) : '';
+        if ($current !== '' && M4pBlogPost::getByRewrite($current, $idShop, $idLang) !== null) {
+            M4pBlogRedirect::moved($this->module->postLink($current));
+        }
     }
 
     public function initContent(): void
@@ -54,6 +69,12 @@ class M4p_BlogPostModuleFrontController extends ModuleFrontController
             'm4pBlogPost' => $presented,
             'm4pBlogContent' => $this->module->renderContent($this->post['content'] ?? null),
             'm4pBlogCategories' => $this->module->presentCategories($idLang),
+            'm4pBlogProducts' => $this->module->presentProducts(M4pBlogPost::productIds($this->post['products'] ?? '')),
+            'm4pBlogProductsTitle' => (string) ($this->post['products_title'] ?? '')
+                ?: $this->trans('Products from this post', [], 'Modules.M4pblog.Shop'),
+            'm4pBlogCatalogUrl' => $this->context->link->getCategoryLink((int) Configuration::get('PS_HOME_CATEGORY')),
+            'm4pBlogRelated' => $this->module->relatedPosts($this->post, $idLang),
+            'm4pBlogUrl' => $this->module->blogLink(),
         ]);
 
         $this->setTemplate('module:m4p_blog/views/templates/front/post.tpl');

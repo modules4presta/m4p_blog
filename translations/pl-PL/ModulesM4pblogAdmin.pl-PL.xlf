@@ -266,6 +266,166 @@
         <source>Upload a JPG, PNG or WebP image up to 10 MB.</source>
         <target>Wgraj obraz JPG, PNG lub WebP do 10 MB.</target>
       </trans-unit>
+      <trans-unit id="42a55a47ebd711548992296c532064fc">
+        <source>Posts on the home page: a number between 0 and 12.</source>
+        <target>Wpisy na stronie głównej: liczba od 0 do 12.</target>
+      </trans-unit>
+      <trans-unit id="b9ee0997e2b855d3b3f4e41c68a83a04">
+        <source>All posts</source>
+        <target>Wszystkie wpisy</target>
+      </trans-unit>
+      <trans-unit id="373c1d644b1e1eb37d295b4c95a5c6f1">
+        <source>Posts on the home page</source>
+        <target>Wpisy na stronie głównej</target>
+      </trans-unit>
+      <trans-unit id="fd199da97fd013764251aa550d84eb5f">
+        <source>0 hides the block on the home page.</source>
+        <target>0 ukrywa blok na stronie głównej.</target>
+      </trans-unit>
+      <trans-unit id="1cf970eb119511c35b5cc69d2913b245">
+        <source>Home page posts from</source>
+        <target>Wpisy na stronę główną z</target>
+      </trans-unit>
+      <trans-unit id="f4e24d230d08433ccf008901df3d9dfc">
+        <source>Home page block title</source>
+        <target>Tytuł bloku na stronie głównej</target>
+      </trans-unit>
+      <trans-unit id="076d3a41572d4f2d0843880e4990067b">
+        <source>Introduction title</source>
+        <target>Tytuł wstępu</target>
+      </trans-unit>
+      <trans-unit id="38e4b737693b8bae7668922902a3e3dc">
+        <source>A panel beside the posts with the title, the text and a link to all posts. Empty title: no panel.</source>
+        <target>Panel obok wpisów z tytułem, tekstem i linkiem do wszystkich wpisów. Puste pole: bez panelu.</target>
+      </trans-unit>
+      <trans-unit id="34e5b0cfb79de6f4620a5ff1d805486b">
+        <source>Introduction text</source>
+        <target>Tekst wstępu</target>
+      </trans-unit>
+      <trans-unit id="52a5c692f30141df1c17e96bed1254c9">
+        <source>Blog page introduction</source>
+        <target>Wstęp strony bloga</target>
+      </trans-unit>
+      <trans-unit id="92197892909f5f46363008787332fd1a">
+        <source>Under the title of the blog page. Empty: no introduction.</source>
+        <target>Pod tytułem strony bloga. Puste pole: bez wstępu.</target>
+      </trans-unit>
+      <trans-unit id="3225a10b07f1580f10dee4abc3779e6c">
+        <source>Parameters</source>
+        <target state="final">Parametry</target>
+      </trans-unit>
+      <trans-unit id="89ef730a562f3453f6bb7819a4a23b0a">
+        <source>Rows – one per line, label and value after a colon</source>
+        <target state="final">Wiersze – jeden w linii, etykieta i wartość po dwukropku</target>
+      </trans-unit>
+      <trans-unit id="ce9c35e0b6276b872dbb4f964eb1c65d">
+        <source>Label: value</source>
+        <target state="final">Etykieta: wartość</target>
+      </trans-unit>
+      <trans-unit id="e6f1656f1f0421ea20086139df94b280">
+        <source>Boxed list</source>
+        <target state="final">Lista w ramce</target>
+      </trans-unit>
+      <trans-unit id="b78a3223503896721cca1303f776159b">
+        <source>Title</source>
+        <target state="final">Tytuł</target>
+      </trans-unit>
+      <trans-unit id="2c595a5fdb98157e1821131c0b83163e">
+        <source>Items – one per line</source>
+        <target state="final">Pozycje – jedna w linii</target>
+      </trans-unit>
+      <trans-unit id="0235c996b43b3799573658df41ef82f2">
+        <source>Marker</source>
+        <target state="final">Znacznik</target>
+      </trans-unit>
+      <trans-unit id="7533f96ec01fd81438833f71539c7d4e">
+        <source>Bullet</source>
+        <target state="final">Punktor</target>
+      </trans-unit>
+      <trans-unit id="30f8b39880f94f9eca46228e8be3f87a">
+        <source>Check mark</source>
+        <target state="final">Ptaszek</target>
+      </trans-unit>
+      <trans-unit id="f3a29486bed19a90f2da6d007818b427">
+        <source>Steps</source>
+        <target state="final">Kroki</target>
+      </trans-unit>
+      <trans-unit id="462f49928b4b4d19039943ee297c19a1">
+        <source>Steps – one per line</source>
+        <target state="final">Kroki – jeden w linii</target>
+      </trans-unit>
+      <trans-unit id="0b90582f4589d84be89f5b847d4d1ed1">
+        <source>Highlight</source>
+        <target state="final">Wyróżnienie</target>
+      </trans-unit>
+      <trans-unit id="a1fa27779242b4902f7ae3bdd5c6d508">
+        <source>Type</source>
+        <target state="final">Rodzaj</target>
+      </trans-unit>
+      <trans-unit id="a82be0f551b8708bc08eb33cd9ded0cf">
+        <source>Information</source>
+        <target state="final">Informacja</target>
+      </trans-unit>
+      <trans-unit id="12ae2a12586001e30745cb0457586ae3">
+        <source>Tip</source>
+        <target state="final">Porada</target>
+      </trans-unit>
+      <trans-unit id="0eaadb4fcb48a0a0ed7bc9868be9fbaa">
+        <source>Warning</source>
+        <target state="final">Ostrzeżenie</target>
+      </trans-unit>
+      <trans-unit id="9ea54b1d9546728548c1f97e8a610898">
+        <source>Questions and answers</source>
+        <target state="final">Pytania i odpowiedzi</target>
+      </trans-unit>
+      <trans-unit id="3101cb8e80da8f0ff639025598f43acc">
+        <source>Questions – the question in the first line, the answer below it, an empty line before the next question</source>
+        <target state="final">Pytania – pytanie w pierwszej linii, odpowiedź pod nim, pusta linia przed kolejnym pytaniem</target>
+      </trans-unit>
+      <trans-unit id="00f6e90006ce636d455823c12a65406e">
+        <source>File to download</source>
+        <target state="final">Plik do pobrania</target>
+      </trans-unit>
+      <trans-unit id="9750437b3751e46527de1c61349b586f">
+        <source>File (PDF, up to 20 MB)</source>
+        <target state="final">Plik (PDF, do 20 MB)</target>
+      </trans-unit>
+      <trans-unit id="de11569ae0c7de13165a05b79e2a3324">
+        <source>Name shown on the page</source>
+        <target state="final">Nazwa na stronie</target>
+      </trans-unit>
+      <trans-unit id="068f80c7519d0528fb08e82137a72131">
+        <source>Products</source>
+        <target state="final">Produkty</target>
+      </trans-unit>
+      <trans-unit id="4de7fdf922a44da5f462d8378d531f36">
+        <source>Products section title</source>
+        <target state="final">Tytuł sekcji produktów</target>
+      </trans-unit>
+      <trans-unit id="fc22fa9a53c7bce23e55206a0c10862a">
+        <source>Left empty: "Products from this post".</source>
+        <target state="final">Puste: „Produkty z wpisu”.</target>
+      </trans-unit>
+      <trans-unit id="e4a1352f718ecd2b30952a077a947515">
+        <source>No product found. Check the name or reference.</source>
+        <target state="final">Nie znaleziono produktu. Sprawdź nazwę lub indeks.</target>
+      </trans-unit>
+      <trans-unit id="e8b417211e467c9a7e7d275a81c01bca">
+        <source>Search by name or reference</source>
+        <target state="final">Szukaj po nazwie lub indeksie</target>
+      </trans-unit>
+      <trans-unit id="440b4b7ffa4dce227d7f70825b51b0fd">
+        <source>Shown under the post in this order, as product cards. No products: no section.</source>
+        <target state="final">Produkty pokazują się pod wpisem w tej kolejności, jako karty produktów. Bez produktów sekcji nie ma.</target>
+      </trans-unit>
+      <trans-unit id="0b5b4b7ed9c603c33a90630490b30325">
+        <source>Upload a PDF file up to 20 MB.</source>
+        <target state="final">Wgraj plik PDF do 20 MB.</target>
+      </trans-unit>
+      <trans-unit id="6e79dc591cfbf01f52d475cc58f3688f">
+        <source>Current file (choose a new one to replace it):</source>
+        <target state="final">Obecny plik (wybierz nowy, żeby go zastąpić):</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

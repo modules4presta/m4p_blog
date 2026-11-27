@@ -17,8 +17,16 @@ if (!defined('_PS_VERSION_')) {
 require_once __DIR__ . '/classes/M4pBlogCanonical.php';
 require_once __DIR__ . '/classes/M4pBlogHtml.php';
 require_once __DIR__ . '/classes/M4pBlogImage.php';
+require_once __DIR__ . '/classes/M4pBlogFile.php';
+require_once __DIR__ . '/classes/M4pBlogRedirect.php';
 require_once __DIR__ . '/classes/Block/M4pBlogBlock.php';
 require_once __DIR__ . '/classes/Block/M4pBlogHtmlBlock.php';
+require_once __DIR__ . '/classes/Block/M4pBlogFactsBlock.php';
+require_once __DIR__ . '/classes/Block/M4pBlogListBlock.php';
+require_once __DIR__ . '/classes/Block/M4pBlogStepsBlock.php';
+require_once __DIR__ . '/classes/Block/M4pBlogNoteBlock.php';
+require_once __DIR__ . '/classes/Block/M4pBlogFaqBlock.php';
+require_once __DIR__ . '/classes/Block/M4pBlogFileBlock.php';
 require_once __DIR__ . '/classes/Block/M4pBlogBlocks.php';
 require_once __DIR__ . '/classes/M4pBlogContent.php';
 require_once __DIR__ . '/classes/M4pBlogPost.php';
@@ -29,6 +37,11 @@ class M4p_Blog extends Module
 {
     public const CONFIG_ACTIVE = 'M4P_BLOG_ACTIVE';
     public const CONFIG_PER_PAGE = 'M4P_BLOG_PER_PAGE';
+    public const CONFIG_HOME_COUNT = 'M4P_BLOG_HOME_COUNT';
+    public const CONFIG_HOME_CATEGORY = 'M4P_BLOG_HOME_CATEGORY';
+    public const CONFIG_INTRO = 'M4P_BLOG_INTRO';
+    /** Translatable texts of the home page block, stored per language. */
+    public const CONFIG_HOME_TEXTS = ['M4P_BLOG_HOME_TITLE', 'M4P_BLOG_HOME_INTRO_TITLE', 'M4P_BLOG_HOME_INTRO'];
 
     /**
      * Segments of the friendly URLs. Module routes are the same in every language of the shop
@@ -52,7 +65,7 @@ class M4p_Blog extends Module
     {
         $this->name = 'm4p_blog';
         $this->tab = 'content_management';
-        $this->version = '1.0.1';
+        $this->version = '1.3.0';
         $this->author = 'Modules4Presta';
         $this->need_instance = 0;
         $this->bootstrap = true;
@@ -78,16 +91,22 @@ class M4p_Blog extends Module
         return parent::install()
             && $this->runSql('install')
             && $this->installHooks()
-            && $this->registerHook(['moduleRoutes', 'header', 'actionAdminControllerSetMedia'])
+            && $this->registerHook(['moduleRoutes', 'header', 'actionAdminControllerSetMedia', 'displayHome'])
             && $this->installTabs()
             && Configuration::updateValue(self::CONFIG_ACTIVE, 1)
-            && Configuration::updateValue(self::CONFIG_PER_PAGE, 9);
+            && Configuration::updateValue(self::CONFIG_PER_PAGE, 9)
+            && Configuration::updateValue(self::CONFIG_HOME_COUNT, 2);
     }
 
     public function uninstall(): bool
     {
         Configuration::deleteByName(self::CONFIG_ACTIVE);
         Configuration::deleteByName(self::CONFIG_PER_PAGE);
+        Configuration::deleteByName(self::CONFIG_HOME_COUNT);
+        Configuration::deleteByName(self::CONFIG_HOME_CATEGORY);
+        foreach (self::CONFIG_HOME_TEXTS as $key) {
+            Configuration::deleteByName($key);
+        }
 
         return $this->uninstallTabs() && $this->runSql('uninstall') && parent::uninstall();
     }
@@ -97,13 +116,27 @@ class M4p_Blog extends Module
         $output = '';
         if (Tools::isSubmit('submit' . $this->name)) {
             $perPage = (int) Tools::getValue(self::CONFIG_PER_PAGE);
+            $homeCount = (int) Tools::getValue(self::CONFIG_HOME_COUNT);
             if ($perPage < 1 || $perPage > 100) {
                 $output .= $this->displayError(
                     $this->trans('Posts per page: a number between 1 and 100.', [], 'Modules.M4pblog.Admin')
                 );
+            } elseif ($homeCount < 0 || $homeCount > 12) {
+                $output .= $this->displayError(
+                    $this->trans('Posts on the home page: a number between 0 and 12.', [], 'Modules.M4pblog.Admin')
+                );
             } else {
                 Configuration::updateValue(self::CONFIG_ACTIVE, (bool) Tools::getValue(self::CONFIG_ACTIVE));
                 Configuration::updateValue(self::CONFIG_PER_PAGE, $perPage);
+                Configuration::updateValue(self::CONFIG_HOME_COUNT, $homeCount);
+                Configuration::updateValue(self::CONFIG_HOME_CATEGORY, (int) Tools::getValue(self::CONFIG_HOME_CATEGORY));
+                foreach (self::textKeys() as $key) {
+                    $values = [];
+                    foreach (Language::getIDs(false) as $idLang) {
+                        $values[$idLang] = trim((string) Tools::getValue($key . '_' . $idLang));
+                    }
+                    Configuration::updateValue($key, $values);
+                }
                 $output .= $this->displayConfirmation(
                     $this->trans('Settings updated', [], 'Modules.M4pblog.Admin')
                 );
@@ -159,9 +192,44 @@ class M4p_Blog extends Module
         ];
     }
 
+    public function hookDisplayHome(): string
+    {
+        $count = (int) Configuration::get(self::CONFIG_HOME_COUNT);
+        if (!$this->isBlogActive() || $count < 1) {
+            return '';
+        }
+        $idLang = (int) $this->context->language->id;
+        $idShop = (int) $this->context->shop->id;
+        $filters = ['limit' => $count];
+        $idCategory = (int) Configuration::get(self::CONFIG_HOME_CATEGORY);
+        if ($idCategory > 0) {
+            $filters['category'] = $idCategory;
+        }
+        $posts = array_map(
+            fn (array $row): array => $this->presentPost($row, $idLang),
+            M4pBlogPost::getPosts($idShop, $idLang, $filters)
+        );
+        if ($posts === []) {
+            return '';
+        }
+
+        $this->context->smarty->assign([
+            'm4pBlogHome' => [
+                'title' => (string) Configuration::get('M4P_BLOG_HOME_TITLE', $idLang),
+                'intro_title' => (string) Configuration::get('M4P_BLOG_HOME_INTRO_TITLE', $idLang),
+                'intro' => (string) Configuration::get('M4P_BLOG_HOME_INTRO', $idLang),
+                'all_url' => $this->context->link->getModuleLink($this->name, 'list'),
+                'posts' => $posts,
+            ],
+        ]);
+
+        return $this->fetch('module:' . $this->name . '/views/templates/hook/home.tpl');
+    }
+
     public function hookHeader(): void
     {
-        if (in_array($this->context->controller->php_self ?? '', self::CONTROLLERS, true)) {
+        $page = $this->context->controller->php_self ?? '';
+        if (in_array($page, self::CONTROLLERS, true) || ($page === 'index' && (int) Configuration::get(self::CONFIG_HOME_COUNT) > 0)) {
             $this->context->controller->registerStylesheet(
                 'm4p-blog',
                 'modules/' . $this->name . '/views/css/front.css',
@@ -221,6 +289,79 @@ class M4p_Blog extends Module
     }
 
     /**
+     * Products chosen for a post, presented like a product listing, in the chosen order; products that
+     * are disabled or hidden from the catalogue are left out.
+     *
+     * @param int[] $ids
+     *
+     * @return array<int, mixed>
+     */
+    public function presentProducts(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+        $visible = array_map('intval', array_column(Db::getInstance()->executeS(
+            'SELECT `id_product` FROM `' . _DB_PREFIX_ . 'product_shop`
+             WHERE `id_shop` = ' . (int) $this->context->shop->id . ' AND `active` = 1
+                AND `visibility` IN ("both", "catalog") AND `id_product` IN (' . implode(',', array_map('intval', $ids)) . ')'
+        ) ?: [], 'id_product'));
+        $raw = array_map(
+            static fn (int $id): array => ['id_product' => $id],
+            array_values(array_intersect($ids, $visible))
+        );
+        if ($raw === []) {
+            return [];
+        }
+
+        $link = $this->context->link;
+        $assembler = new ProductAssembler($this->context);
+        $factory = new ProductPresenterFactory($this->context);
+        $settings = $factory->getPresentationSettings();
+        $presenter = new PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductListingPresenter(
+            new PrestaShop\PrestaShop\Adapter\Image\ImageRetriever($link),
+            $link,
+            new PrestaShop\PrestaShop\Adapter\Product\PriceFormatter(),
+            new PrestaShop\PrestaShop\Adapter\Product\ProductColorsRetriever(),
+            $this->context->getTranslator()
+        );
+        $assembled = method_exists($assembler, 'assembleProducts')
+            ? $assembler->assembleProducts($raw)
+            : array_map([$assembler, 'assembleProduct'], $raw);
+
+        $products = [];
+        foreach ($assembled as $product) {
+            $products[] = $presenter->present($settings, $product, $this->context->language);
+        }
+
+        return $products;
+    }
+
+    /**
+     * Up to three latest posts of the main category of a post, without the post itself.
+     *
+     * @param array<string, mixed> $post
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function relatedPosts(array $post, int $idLang, int $limit = 3): array
+    {
+        $idCategory = (int) ($post['id_category_default'] ?? 0);
+        if ($idCategory < 1) {
+            return [];
+        }
+
+        return array_map(
+            fn (array $row): array => $this->presentPost($row, $idLang),
+            M4pBlogPost::getPosts((int) $this->context->shop->id, $idLang, [
+                'category' => $idCategory,
+                'exclude' => (int) $post['id_m4p_blog_post'],
+                'limit' => $limit,
+            ])
+        );
+    }
+
+    /**
      * A post row as the listing and the post page templates read it.
      *
      * @param array<string, mixed> $row
@@ -246,6 +387,7 @@ class M4p_Blog extends Module
             'url' => $this->postLink((string) $row['link_rewrite'], $idLang),
             'image' => $row['image'] ? M4pBlogImage::sources((string) $row['image']) : null,
             'date_published' => (string) $row['date_published'],
+            'date' => Tools::displayDate((string) $row['date_published']),
             'reading_time' => (int) $row['reading_time'],
             'author' => $author ? $this->presentAuthor($author) : null,
             'category' => $category ? [
@@ -265,6 +407,7 @@ class M4p_Blog extends Module
         return [
             'id' => (int) $row['id_m4p_blog_author'],
             'display_name' => (string) $row['display_name'],
+            'initials' => self::initials((string) $row['display_name']),
             'role' => (string) $row['role'],
             'bio' => (string) $row['bio'],
             'image' => $row['image'] ? M4pBlogImage::sources((string) $row['image']) : null,
@@ -283,13 +426,15 @@ class M4p_Blog extends Module
         $idShop = (int) $this->context->shop->id;
         $counts = M4pBlogCategory::getPostCounts($idShop, $idLang);
         $categories = [];
-        foreach (M4pBlogCategory::getTree($idShop, $idLang, true) as $row) {
+        $tree = M4pBlogCategory::getTree($idShop, $idLang, true);
+        foreach ($tree as $i => $row) {
             $categories[] = [
                 'id' => (int) $row['id_m4p_blog_category'],
                 'name' => (string) $row['name'],
                 'depth' => (int) $row['depth'],
                 'url' => $this->categoryLink((string) $row['link_rewrite'], $idLang),
                 'total' => $counts[(int) $row['id_m4p_blog_category']] ?? 0,
+                'has_children' => isset($tree[$i + 1]) && (int) $tree[$i + 1]['depth'] > (int) $row['depth'],
             ];
         }
 
@@ -297,19 +442,52 @@ class M4p_Blog extends Module
     }
 
     /**
-     * @return array{pages: int, current: int, previous: ?string, next: ?string}
+     * Numbered pagination: the first and last page, the current one with its neighbours, gaps as spacers.
+     *
+     * @return array{pages: int, current: int, previous: ?string, next: ?string, links: list<array{page: ?int, url: ?string, current: bool}>}
      */
     public function pagination(int $total, int $current, string $baseUrl): array
     {
         $pages = (int) ceil($total / $this->postsPerPage());
-        $separator = strpos($baseUrl, '?') === false ? '?' : '&';
+        $pageUrl = static function (int $page) use ($baseUrl): string {
+            $separator = strpos($baseUrl, '?') === false ? '?' : '&';
+
+            return $page > 1 ? $baseUrl . $separator . 'page=' . $page : $baseUrl;
+        };
+
+        $links = [];
+        $previousPage = 0;
+        for ($page = 1; $page <= $pages; ++$page) {
+            if ($page !== 1 && $page !== $pages && abs($page - $current) > 1) {
+                continue;
+            }
+            if ($page - $previousPage > 1) {
+                $links[] = ['page' => null, 'url' => null, 'current' => false];
+            }
+            $links[] = ['page' => $page, 'url' => $pageUrl($page), 'current' => $page === $current];
+            $previousPage = $page;
+        }
 
         return [
             'pages' => $pages,
             'current' => $current,
-            'previous' => $current > 1 ? $baseUrl . ($current > 2 ? $separator . 'page=' . ($current - 1) : '') : null,
-            'next' => $current < $pages ? $baseUrl . $separator . 'page=' . ($current + 1) : null,
+            'previous' => $current > 1 ? $pageUrl($current - 1) : null,
+            'next' => $current < $pages ? $pageUrl($current + 1) : null,
+            'links' => $links,
         ];
+    }
+
+    /**
+     * First letters of the first two words of a name, for an avatar without a photo.
+     */
+    private static function initials(string $name): string
+    {
+        $initials = '';
+        foreach (array_slice(preg_split('/\s+/u', trim($name)) ?: [], 0, 2) as $word) {
+            $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+        }
+
+        return $initials;
     }
 
     private static function shorten(string $text, int $length): string
@@ -323,6 +501,16 @@ class M4p_Blog extends Module
         return ($space !== false ? mb_substr($cut, 0, $space) : $cut) . '…';
     }
 
+    /**
+     * Configuration keys stored per language.
+     *
+     * @return list<string>
+     */
+    private static function textKeys(): array
+    {
+        return array_merge([self::CONFIG_INTRO], self::CONFIG_HOME_TEXTS);
+    }
+
     private function renderSettingsForm(): string
     {
         $helper = new HelperForm();
@@ -332,10 +520,22 @@ class M4p_Blog extends Module
         $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
         $helper->submit_action = 'submit' . $this->name;
         $helper->default_form_language = (int) Configuration::get('PS_LANG_DEFAULT');
+        $helper->languages = $this->context->controller->getLanguages();
         $helper->fields_value = [
             self::CONFIG_ACTIVE => (int) Configuration::get(self::CONFIG_ACTIVE),
             self::CONFIG_PER_PAGE => $this->postsPerPage(),
+            self::CONFIG_HOME_COUNT => (int) Configuration::get(self::CONFIG_HOME_COUNT),
+            self::CONFIG_HOME_CATEGORY => (int) Configuration::get(self::CONFIG_HOME_CATEGORY),
         ];
+        foreach (self::textKeys() as $key) {
+            foreach (Language::getIDs(false) as $idLang) {
+                $helper->fields_value[$key][$idLang] = (string) Configuration::get($key, $idLang);
+            }
+        }
+        $categories = [['id' => 0, 'name' => $this->trans('All posts', [], 'Modules.M4pblog.Admin')]];
+        foreach (M4pBlogCategory::getTree((int) $this->context->shop->id, (int) Configuration::get('PS_LANG_DEFAULT')) as $category) {
+            $categories[] = ['id' => (int) $category['id_m4p_blog_category'], 'name' => str_repeat('– ', max(0, (int) $category['depth'])) . $category['name']];
+        }
 
         return $helper->generateForm([[
             'form' => [
@@ -360,6 +560,45 @@ class M4p_Blog extends Module
                         'name' => self::CONFIG_PER_PAGE,
                         'class' => 'fixed-width-sm',
                         'required' => true,
+                    ],
+                    [
+                        'type' => 'textarea',
+                        'lang' => true,
+                        'label' => $this->trans('Blog page introduction', [], 'Modules.M4pblog.Admin'),
+                        'name' => self::CONFIG_INTRO,
+                        'desc' => $this->trans('Under the title of the blog page. Empty: no introduction.', [], 'Modules.M4pblog.Admin'),
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->trans('Posts on the home page', [], 'Modules.M4pblog.Admin'),
+                        'name' => self::CONFIG_HOME_COUNT,
+                        'class' => 'fixed-width-sm',
+                        'desc' => $this->trans('0 hides the block on the home page.', [], 'Modules.M4pblog.Admin'),
+                    ],
+                    [
+                        'type' => 'select',
+                        'label' => $this->trans('Home page posts from', [], 'Modules.M4pblog.Admin'),
+                        'name' => self::CONFIG_HOME_CATEGORY,
+                        'options' => ['query' => $categories, 'id' => 'id', 'name' => 'name'],
+                    ],
+                    [
+                        'type' => 'text',
+                        'lang' => true,
+                        'label' => $this->trans('Home page block title', [], 'Modules.M4pblog.Admin'),
+                        'name' => 'M4P_BLOG_HOME_TITLE',
+                    ],
+                    [
+                        'type' => 'text',
+                        'lang' => true,
+                        'label' => $this->trans('Introduction title', [], 'Modules.M4pblog.Admin'),
+                        'name' => 'M4P_BLOG_HOME_INTRO_TITLE',
+                        'desc' => $this->trans('A panel beside the posts with the title, the text and a link to all posts. Empty title: no panel.', [], 'Modules.M4pblog.Admin'),
+                    ],
+                    [
+                        'type' => 'textarea',
+                        'lang' => true,
+                        'label' => $this->trans('Introduction text', [], 'Modules.M4pblog.Admin'),
+                        'name' => 'M4P_BLOG_HOME_INTRO',
                     ],
                 ],
                 'submit' => ['title' => $this->trans('Save', [], 'Admin.Actions')],

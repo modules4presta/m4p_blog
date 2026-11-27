@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-	<name>m4p_blog</name>
-	<displayName><![CDATA[Blog]]></displayName>
-	<version><![CDATA[1.0.1]]></version>
-	<description><![CDATA[Blog sklepu: wpisy z bloków treści, kategorie i autorzy.]]></description>
-	<author><![CDATA[Modules4Presta]]></author>
-	<tab><![CDATA[content_management]]></tab>
-	<is_configurable>1</is_configurable>
-	<need_instance>0</need_instance>
+    <name>m4p_blog</name>
+    <displayName><![CDATA[Blog]]></displayName>
+    <version><![CDATA[1.3.0]]></version>
+    <description><![CDATA[Blog sklepu: wpisy z blok&oacute;w treści, kategorie i autorzy.]]></description>
+    <author><![CDATA[Modules4Presta]]></author>
+    <tab><![CDATA[content_management]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
 </module>

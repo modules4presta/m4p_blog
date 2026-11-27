@@ -18,8 +18,9 @@ if (!defined('_PS_VERSION_')) {
  * A block type of the post content. A type declares its fields (the editor builds the form from them),
  * cleans the posted values and names its front template; storage and ordering are shared.
  *
- * Field types: text, richtext, lines (one item per line), image, choice. Fields marked `translatable` hold
- * the text of the post language, the others the settings of the block.
+ * Field types: text, textarea (plain text over several lines), richtext, lines (one item per line), pairs
+ * (a question and its answer, pairs split by an empty line), image, file (a PDF), choice. Fields marked
+ * `translatable` hold the text of the post language, the others the settings of the block.
  */
 abstract class M4pBlogBlock
 {
@@ -113,6 +114,12 @@ abstract class M4pBlogBlock
         switch ($field['type']) {
             case 'richtext':
                 return M4pBlogHtml::clean((string) $value);
+            case 'textarea':
+                return mb_substr(trim(strip_tags((string) $value)), 0, 2000);
+            case 'pairs':
+                return self::pairs($value);
+            case 'file':
+                return M4pBlogFile::exists((string) $value) ? (string) $value : '';
             case 'lines':
                 $lines = is_array($value) ? $value : preg_split('/\R/u', (string) $value);
 
@@ -129,6 +136,35 @@ abstract class M4pBlogBlock
             default:
                 return mb_substr(trim(strip_tags((string) $value)), 0, 255);
         }
+    }
+
+    /**
+     * Question and answer pairs from the editor text (the question in the first line, the answer below it,
+     * pairs split by an empty line) or from stored pairs.
+     *
+     * @return list<array{q: string, a: string}>
+     */
+    private static function pairs($value): array
+    {
+        $chunks = is_array($value) ? $value : preg_split('/\R\s*\R/u', trim((string) $value));
+        $pairs = [];
+        foreach ($chunks as $chunk) {
+            if (is_array($chunk)) {
+                $question = (string) ($chunk['q'] ?? '');
+                $answer = (string) ($chunk['a'] ?? '');
+            } else {
+                $lines = preg_split('/\R/u', trim((string) $chunk), 2);
+                $question = (string) ($lines[0] ?? '');
+                $answer = (string) ($lines[1] ?? '');
+            }
+            $question = mb_substr(trim(strip_tags($question)), 0, 255);
+            $answer = mb_substr(trim(strip_tags($answer)), 0, 2000);
+            if ($question !== '' && $answer !== '') {
+                $pairs[] = ['q' => $question, 'a' => $answer];
+            }
+        }
+
+        return $pairs;
     }
 
     protected function trans(string $text): string

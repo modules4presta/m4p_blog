@@ -34,6 +34,7 @@ return [
         `reading_time` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
         `image` VARCHAR(128) NOT NULL DEFAULT '',
         `position` INT UNSIGNED NOT NULL DEFAULT 0,
+        `products` VARCHAR(255) NOT NULL DEFAULT '',
         `date_add` DATETIME NOT NULL,
         `date_upd` DATETIME NOT NULL,
         PRIMARY KEY (`id_m4p_blog_post`, `id_shop`),
@@ -52,6 +53,7 @@ return [
         `meta_title` VARCHAR(255) NOT NULL DEFAULT '',
         `meta_description` VARCHAR(512) NOT NULL DEFAULT '',
         `link_rewrite` VARCHAR(255) NOT NULL DEFAULT '',
+        `products_title` VARCHAR(255) NOT NULL DEFAULT '',
         PRIMARY KEY (`id_m4p_blog_post`, `id_shop`, `id_lang`),
         KEY `rewrite` (`id_shop`, `id_lang`, `link_rewrite`)
     ) ENGINE={$engine} DEFAULT CHARSET=utf8mb4;",
@@ -107,6 +109,17 @@ return [
         PRIMARY KEY (`id_m4p_blog_author`, `id_shop`),
         KEY `rewrite` (`id_shop`, `link_rewrite`),
         KEY `employee` (`id_shop`, `id_employee`)
+    ) ENGINE={$engine} DEFAULT CHARSET=utf8mb4;",
+
+    "CREATE TABLE IF NOT EXISTS `{$prefix}m4p_blog_redirect` (
+        `id_shop` INT UNSIGNED NOT NULL DEFAULT 1,
+        `entity` VARCHAR(16) NOT NULL,
+        `id_lang` INT UNSIGNED NOT NULL DEFAULT 0,
+        `old_rewrite` VARCHAR(255) NOT NULL,
+        `id_entity` INT UNSIGNED NOT NULL,
+        `date_add` DATETIME NOT NULL,
+        PRIMARY KEY (`id_shop`, `entity`, `id_lang`, `old_rewrite`),
+        KEY `entity` (`id_shop`, `entity`, `id_entity`)
     ) ENGINE={$engine} DEFAULT CHARSET=utf8mb4;",
 
     "CREATE TABLE IF NOT EXISTS `{$prefix}m4p_blog_tag` (

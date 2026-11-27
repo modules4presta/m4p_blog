@@ -39,12 +39,26 @@ class M4p_BlogAuthorModuleFrontController extends ModuleFrontController
             ? M4pBlogAuthor::getByRewrite($rewrite, (int) $this->context->shop->id)
             : null;
         if ($author === null) {
+            $this->redirectFormerUrl($rewrite);
             Tools::redirect('index.php?controller=404');
         }
         $this->author = $author;
         $this->page = max(1, (int) Tools::getValue('page', 1));
 
         parent::init();
+    }
+
+    private function redirectFormerUrl(string $rewrite): void
+    {
+        if (!$this->module->isBlogActive()) {
+            return;
+        }
+        $idShop = (int) $this->context->shop->id;
+        $idAuthor = M4pBlogRedirect::find(M4pBlogRedirect::AUTHOR, $idShop, 0, $rewrite);
+        $author = $idAuthor ? M4pBlogAuthor::getById($idAuthor, $idShop) : null;
+        if ($author !== null && (string) $author['link_rewrite'] !== '') {
+            M4pBlogRedirect::moved($this->module->authorLink((string) $author['link_rewrite']));
+        }
     }
 
     public function initContent(): void

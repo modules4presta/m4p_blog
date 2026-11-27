@@ -46,6 +46,9 @@ class M4pBlogPost extends ObjectModel
     /** @var int */
     public $position = 0;
 
+    /** @var string Product ids shown under the post, comma separated, in their order. */
+    public $products = '';
+
     /** @var string */
     public $date_add;
 
@@ -70,6 +73,9 @@ class M4pBlogPost extends ObjectModel
     /** @var string|array<int, string> */
     public $link_rewrite;
 
+    /** @var string|array<int, string> */
+    public $products_title;
+
     public static $definition = [
         'table' => self::TABLE,
         'primary' => 'id_m4p_blog_post',
@@ -84,6 +90,7 @@ class M4pBlogPost extends ObjectModel
             'reading_time' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
             'image' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 128],
             'position' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
+            'products' => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 255],
             'date_add' => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             'date_upd' => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             'title' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 255],
@@ -92,6 +99,7 @@ class M4pBlogPost extends ObjectModel
             'meta_title' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
             'meta_description' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 512],
             'link_rewrite' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isLinkRewrite', 'required' => true, 'size' => 255],
+            'products_title' => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255],
         ],
     ];
 
@@ -121,9 +129,27 @@ class M4pBlogPost extends ObjectModel
         return parent::add($autoDate, $nullValues);
     }
 
+    public function update($nullValues = false)
+    {
+        $before = [];
+        foreach (Db::getInstance()->executeS(
+            'SELECT `id_lang`, `link_rewrite` FROM `' . _DB_PREFIX_ . 'm4p_blog_post_lang`'
+            . ' WHERE `id_m4p_blog_post` = ' . (int) $this->id . ' AND `id_shop` = ' . (int) $this->id_shop
+        ) ?: [] as $row) {
+            $before[(int) $row['id_lang']] = (string) $row['link_rewrite'];
+        }
+        if (!parent::update($nullValues)) {
+            return false;
+        }
+        M4pBlogRedirect::remember(M4pBlogRedirect::POST, (int) $this->id, (int) $this->id_shop, $before, (array) $this->link_rewrite);
+
+        return true;
+    }
+
     public function delete()
     {
         $id = (int) $this->id;
+        M4pBlogRedirect::forget(M4pBlogRedirect::POST, (int) $this->id, (int) $this->id_shop);
         $db = Db::getInstance();
         $db->delete('m4p_blog_post_category', 'id_m4p_blog_post = ' . $id);
         $db->delete('m4p_blog_post_tag', 'id_m4p_blog_post = ' . $id);
@@ -179,7 +205,7 @@ class M4pBlogPost extends ObjectModel
     /**
      * Posts for a listing page.
      *
-     * @param array{category?: int, author?: int, limit?: int, offset?: int} $filters
+     * @param array{category?: int, author?: int, exclude?: int, limit?: int, offset?: int} $filters
      *
      * @return array<int, array<string, mixed>>
      */
@@ -252,6 +278,19 @@ class M4pBlogPost extends ObjectModel
         );
     }
 
+    /**
+     * Product ids of the stored list, in their order.
+     *
+     * @return int[]
+     */
+    public static function productIds(?string $value): array
+    {
+        return array_values(array_unique(array_filter(
+            array_map('intval', explode(',', (string) $value)),
+            static fn (int $id): bool => $id > 0
+        )));
+    }
+
     private static function joinFilters(array $filters): string
     {
         if (empty($filters['category'])) {
@@ -266,6 +305,8 @@ class M4pBlogPost extends ObjectModel
 
     private static function whereFilters(array $filters): string
     {
-        return empty($filters['author']) ? '' : ' AND p.`id_author` = ' . (int) $filters['author'];
+        $where = empty($filters['author']) ? '' : ' AND p.`id_author` = ' . (int) $filters['author'];
+
+        return $where . (empty($filters['exclude']) ? '' : ' AND p.`id_m4p_blog_post` <> ' . (int) $filters['exclude']);
     }
 }

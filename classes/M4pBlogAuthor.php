@@ -89,8 +89,23 @@ class M4pBlogAuthor extends ObjectModel
         return parent::add($autoDate, $nullValues);
     }
 
+    public function update($nullValues = false)
+    {
+        $before = (string) Db::getInstance()->getValue(
+            'SELECT `link_rewrite` FROM `' . _DB_PREFIX_ . self::TABLE . '`'
+            . ' WHERE `id_m4p_blog_author` = ' . (int) $this->id . ' AND `id_shop` = ' . (int) $this->id_shop
+        );
+        if (!parent::update($nullValues)) {
+            return false;
+        }
+        M4pBlogRedirect::remember(M4pBlogRedirect::AUTHOR, (int) $this->id, (int) $this->id_shop, [0 => $before], [0 => (string) $this->link_rewrite]);
+
+        return true;
+    }
+
     public function delete()
     {
+        M4pBlogRedirect::forget(M4pBlogRedirect::AUTHOR, (int) $this->id, (int) $this->id_shop);
         Db::getInstance()->update(
             M4pBlogPost::TABLE,
             ['id_author' => 0],

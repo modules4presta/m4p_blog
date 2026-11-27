@@ -21,7 +21,8 @@
       </div>
       {include file='module:m4p_blog/views/templates/front/_partials/pagination.tpl'}
     {else}
-      <p class="m4p-blog-empty">{l s='No posts by this author yet.' d='Modules.M4pblog.Shop'}</p>
+      {capture assign='emptyTitle'}{l s='No posts by this author yet.' d='Modules.M4pblog.Shop'}{/capture}
+      {include file='module:m4p_blog/views/templates/front/_partials/empty.tpl' emptyTitle=$emptyTitle emptyAllPosts=true}
     {/if}
   </div>
 {/block}

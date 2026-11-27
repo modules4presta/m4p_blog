@@ -90,12 +90,30 @@ class M4pBlogCategory extends ObjectModel
         return parent::add($autoDate, $nullValues);
     }
 
+    public function update($nullValues = false)
+    {
+        $before = [];
+        foreach (Db::getInstance()->executeS(
+            'SELECT `id_lang`, `link_rewrite` FROM `' . _DB_PREFIX_ . 'm4p_blog_category_lang`'
+            . ' WHERE `id_m4p_blog_category` = ' . (int) $this->id . ' AND `id_shop` = ' . (int) $this->id_shop
+        ) ?: [] as $row) {
+            $before[(int) $row['id_lang']] = (string) $row['link_rewrite'];
+        }
+        if (!parent::update($nullValues)) {
+            return false;
+        }
+        M4pBlogRedirect::remember(M4pBlogRedirect::CATEGORY, (int) $this->id, (int) $this->id_shop, $before, (array) $this->link_rewrite);
+
+        return true;
+    }
+
     /**
      * Children move up to the parent of the deleted category, so no subtree is orphaned.
      */
     public function delete()
     {
         $db = Db::getInstance();
+        M4pBlogRedirect::forget(M4pBlogRedirect::CATEGORY, (int) $this->id, (int) $this->id_shop);
         $db->update(
             self::TABLE,
             ['id_parent' => (int) $this->id_parent],
